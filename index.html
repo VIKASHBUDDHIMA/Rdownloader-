@@ -33,6 +33,12 @@
             max-width: 600px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             text-align: center;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
@@ -87,51 +93,10 @@
             box-shadow: 0 10px 20px rgba(0, 229, 255, 0.4);
         }
 
-        /* Download Options Area */
-        .download-options {
-            display: none;
-            margin-top: 30px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .download-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            color: #fff;
-            transition: 0.2s;
-        }
-
-        .btn-mp3 { background: #ff4757; }
-        .btn-mp3:hover { background: #ff6b81; }
-
-        .btn-mp4 { background: #2ed573; }
-        .btn-mp4:hover { background: #7bed9f; }
-
-        .btn-mp4-hd { background: #1e90ff; }
-        .btn-mp4-hd:hover { background: #70a1ff; }
-
-        /* Progress Bar */
+        /* Progress Bar Animation */
         .progress-wrapper {
             display: none;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .progress-text {
@@ -143,7 +108,7 @@
 
         .progress-container {
             width: 100%;
-            height: 8px;
+            height: 10px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             overflow: hidden;
@@ -152,8 +117,66 @@
         .progress-bar {
             height: 100%;
             width: 0%;
-            background: #00e5ff;
-            transition: width 0.4s ease;
+            background: linear-gradient(90deg, #00e5ff, #0072ff);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Results Display */
+        .download-options {
+            display: none;
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.5s ease-in-out;
+            text-align: left;
+        }
+
+        .download-options h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #00e5ff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            color: #fff;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .btn-mp3 { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+        .btn-mp3:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-720p { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .btn-720p:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-1080p { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
+        .btn-1080p:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-backup { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
+        .btn-backup:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 400;
         }
 
         .footer {
@@ -171,29 +194,41 @@
         
         <div class="input-group">
             <input type="text" id="videoUrl" placeholder="Paste YouTube Link here...">
-            <button class="btn-main" onclick="showDownloadOptions()">Get Download Links</button>
+            <button class="btn-main" onclick="processVideo()">Get Download Links</button>
         </div>
 
-        <div class="download-options" id="downloadOptions">
-            <h3 style="font-size: 16px; margin-bottom: 15px; color: #fff;">Select Format & Quality:</h3>
-            
-            <button class="download-btn btn-mp3" onclick="startDownload('audio', 'mp3')">
-                🎵 Download MP3 (Audio)
-            </button>
-            <button class="download-btn btn-mp4" onclick="startDownload('video', '720')">
-                🎬 Download MP4 (720p Quality)
-            </button>
-            <button class="download-btn btn-mp4-hd" onclick="startDownload('video', '1080')">
-                🎬 Download MP4 (1080p HD Quality)
-            </button>
-
-            <!-- Loading Bar -->
-            <div class="progress-wrapper" id="progressWrapper">
-                <div class="progress-text" id="progressText">Connecting to server...</div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
+        <!-- Progress Bar -->
+        <div class="progress-wrapper" id="progressWrapper">
+            <div class="progress-text" id="progressText">Analyzing video link...</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
             </div>
+        </div>
+
+        <!-- Download Buttons -->
+        <div class="download-options" id="downloadOptions">
+            <h3>⚡ Select Format & Quality</h3>
+            
+            <a id="linkMp3" href="#" target="_blank" class="download-btn btn-mp3">
+                <span>🎵 Download MP3 Audio</span>
+                <span class="tag">High Quality</span>
+            </a>
+
+            <a id="link720" href="#" target="_blank" class="download-btn btn-720p">
+                <span>🎬 Download MP4 Video</span>
+                <span class="tag">720p HD</span>
+            </a>
+
+            <a id="link1080" href="#" target="_blank" class="download-btn btn-1080p">
+                <span>🎬 Download MP4 Video</span>
+                <span class="tag">1080p Full HD</span>
+            </a>
+
+            <h3 style="margin-top: 20px;">🔄 Backup Engine</h3>
+            <a id="linkBackup" href="#" target="_blank" class="download-btn btn-backup">
+                <span>🚀 Fast Server 2 (All Formats)</span>
+                <span class="tag">Mirror</span>
+            </a>
         </div>
 
         <div class="footer">
@@ -202,103 +237,58 @@
     </div>
 
     <script>
-        // Extract YouTube ID reliably
+        // Extract YouTube Video ID
         function getVideoId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        // Show the buttons after clicking 'Get Download Links'
-        function showDownloadOptions() {
+        function processVideo() {
             const url = document.getElementById('videoUrl').value.trim();
-            const optionsDiv = document.getElementById('downloadOptions');
-            const progressWrapper = document.getElementById('progressWrapper');
-            
-            if (!getVideoId(url)) {
+            const videoId = getVideoId(url);
+
+            if (!videoId) {
                 alert("Please enter a valid YouTube URL!");
                 return;
             }
 
-            progressWrapper.style.display = 'none';
-            optionsDiv.style.display = 'block';
-        }
-
-        // Main Download Function with API & Fallback
-        async function startDownload(type, quality) {
-            const url = document.getElementById('videoUrl').value.trim();
-            const videoId = getVideoId(url);
-            
             const progressWrapper = document.getElementById('progressWrapper');
             const progressBar = document.getElementById('progressBar');
             const progressText = document.getElementById('progressText');
+            const downloadOptions = document.getElementById('downloadOptions');
 
-            // Show loading bar
+            downloadOptions.style.display = 'none';
             progressWrapper.style.display = 'block';
-            progressBar.style.width = '30%';
-            progressText.innerText = 'Processing your request...';
+            progressBar.style.width = '0%';
+            progressText.innerText = "Analyzing YouTube video...";
 
-            // Cobalt API payload setup
-            const payload = {
-                url: url
-            };
+            // Progress bar animation
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 20;
+                progressBar.style.width = progress + '%';
 
-            if (type === 'audio') {
-                payload.isAudioOnly = true;
-                payload.aFormat = 'mp3';
-            } else {
-                payload.vQuality = quality; // '720' or '1080'
-            }
+                if (progress === 40) {
+                    progressText.innerText = "Generating download links...";
+                } else if (progress === 80) {
+                    progressText.innerText = "Finalizing high-speed streams...";
+                } else if (progress >= 100) {
+                    clearInterval(interval);
+                    progressText.innerText = "Ready!";
 
-            try {
-                // Fetching direct link from Cobalt public API
-                progressBar.style.width = '60%';
-                
-                const response = await fetch('https://api.cobalt.tools/api/json', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
+                    // Direct Gateway URLs
+                    document.getElementById('linkMp3').href = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}&f=mp3`;
+                    document.getElementById('link720').href = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}&f=720`;
+                    document.getElementById('link1080').href = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}&f=1080`;
+                    document.getElementById('linkBackup').href = `https://www.y2mate.com/youtube/${videoId}`;
 
-                if (!response.ok) throw new Error('API Error');
-
-                const data = await response.json();
-
-                if (data && data.url) {
-                    progressBar.style.width = '100%';
-                    progressText.innerText = 'Download starting...';
-                    
                     setTimeout(() => {
-                        window.location.href = data.url; // Triggers the actual download
-                        setTimeout(() => { progressWrapper.style.display = 'none'; progressBar.style.width = '0%'; }, 2000);
-                    }, 1000);
-                } else {
-                    throw new Error('No URL in response');
+                        progressWrapper.style.display = 'none';
+                        downloadOptions.style.display = 'block';
+                    }, 300);
                 }
-
-            } catch (error) {
-                // FALLBACK SYSTEM: If Cobalt API is busy or blocks the request, 
-                // it instantly switches to a highly reliable backup downloader (Y2Mate)
-                console.log("Primary API busy. Using Fallback System...");
-                progressBar.style.width = '90%';
-                progressText.innerText = 'Routing to backup server...';
-
-                setTimeout(() => {
-                    progressBar.style.width = '100%';
-                    progressText.innerText = 'Opening download page...';
-                    
-                    // Open reliable backup link
-                    window.open(`https://www.y2mate.com/youtube/${videoId}`, '_blank');
-                    
-                    setTimeout(() => { 
-                        progressWrapper.style.display = 'none'; 
-                        progressBar.style.width = '0%'; 
-                    }, 1000);
-                }, 1500);
-            }
+            }, 200);
         }
     </script>
 

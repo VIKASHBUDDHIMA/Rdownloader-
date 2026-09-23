@@ -24,14 +24,14 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 40px;
             border-radius: 20px;
             width: 100%;
             max-width: 600px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             text-align: center;
             animation: fadeIn 1s ease-in-out;
         }
@@ -130,19 +130,20 @@
             display: none;
             margin-top: 30px;
             text-align: left;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
             border-radius: 15px;
             animation: fadeIn 0.5s ease-in-out;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .result-area h3 {
             font-size: 16px;
             margin-bottom: 15px;
-            color: #fff;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: #00e5ff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 5px;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .result-area h3:first-child {
@@ -151,11 +152,9 @@
 
         .iframe-container {
             width: 100%;
-            /* Height increased to show all quality download buttons */
-            height: 250px; 
+            height: 100px;
             overflow: hidden;
             border-radius: 10px;
-            margin-bottom: 10px;
             background: transparent;
         }
 
@@ -192,7 +191,7 @@
     </div>
 
     <script>
-        // Function to perfectly extract the Video ID from any YouTube link format
+        // Safely extract YouTube video ID
         function getVideoId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
@@ -204,37 +203,34 @@
             const loader = document.getElementById('loader');
             const resultArea = document.getElementById('resultArea');
 
-            // Get the Video ID
             const videoId = getVideoId(url);
 
-            // Validation
             if (!videoId) {
                 alert("Please enter a valid YouTube URL!");
                 return;
             }
 
-            // Hide previous results and show loader
+            // Hide old results and show loader
             resultArea.style.display = 'none';
             resultArea.innerHTML = '';
             loader.style.display = 'block';
 
-            // Simulating loading to make it look smooth
             setTimeout(() => {
                 loader.style.display = 'none';
 
-                // New reliable API widgets (yt-download.org)
-                const mp3Widget = `https://www.yt-download.org/api/widget/mp3/${videoId}`;
-                const videoWidget = `https://www.yt-download.org/api/widget/videos/${videoId}`;
+                // New High-Quality working API (Vevioz API)
+                const mp3Widget = `https://api.vevioz.com/@api/button/mp3/${videoId}`;
+                const videoWidget = `https://api.vevioz.com/@api/button/videos/${videoId}`;
 
                 resultArea.innerHTML = `
                     <h3>🎵 MP3 (Audio) Download</h3>
                     <div class="iframe-container">
-                        <iframe src="${mp3Widget}" width="100%" height="100%" scrolling="no" style="border:none;"></iframe>
+                        <iframe src="${mp3Widget}" width="100%" height="100%" scrolling="no" style="border:none;" allowtransparency="true"></iframe>
                     </div>
 
                     <h3>🎬 MP4 (Video) Download</h3>
                     <div class="iframe-container">
-                        <iframe src="${videoWidget}" width="100%" height="100%" scrolling="no" style="border:none;"></iframe>
+                        <iframe src="${videoWidget}" width="100%" height="100%" scrolling="no" style="border:none;" allowtransparency="true"></iframe>
                     </div>
                 `;
 

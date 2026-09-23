@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -138,19 +138,25 @@
 
         .result-area h3 {
             font-size: 16px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             color: #fff;
             border-bottom: 1px solid rgba(255,255,255,0.2);
             padding-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        .result-area h3:first-child {
+            margin-top: 0;
         }
 
         .iframe-container {
             width: 100%;
-            height: 60px;
+            /* Height increased to show all quality download buttons */
+            height: 250px; 
             overflow: hidden;
             border-radius: 10px;
-            margin-bottom: 20px;
-            background: #fff;
+            margin-bottom: 10px;
+            background: transparent;
         }
 
         .footer {
@@ -164,20 +170,20 @@
 
     <div class="container">
         <h1>Pro YT Downloader</h1>
-        <p>YouTube වීඩියෝ පහසුවෙන් MP3 සහ MP4 (Quality) ලෙස Download කරගන්න.</p>
+        <p>Easily download YouTube videos in High Quality (MP4 & MP3).</p>
         
         <div class="input-group">
-            <input type="text" id="videoUrl" placeholder="YouTube Link එක මෙතන Paste කරන්න...">
+            <input type="text" id="videoUrl" placeholder="Paste YouTube Link here...">
             <button onclick="fetchDownloadLinks()">Download Now</button>
         </div>
 
         <div class="loader-container" id="loader">
             <div class="spinner"></div>
-            <div class="loading-text">Link එක සකස් කරමින් පවතී. කරුණාකර රැඳී සිටින්න...</div>
+            <div class="loading-text">Processing your link. Please wait...</div>
         </div>
 
         <div class="result-area" id="resultArea">
-            <!-- Download Buttons will appear here -->
+            <!-- Download Widgets will appear here -->
         </div>
 
         <div class="footer">
@@ -186,14 +192,24 @@
     </div>
 
     <script>
+        // Function to perfectly extract the Video ID from any YouTube link format
+        function getVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
         function fetchDownloadLinks() {
             const url = document.getElementById('videoUrl').value.trim();
             const loader = document.getElementById('loader');
             const resultArea = document.getElementById('resultArea');
 
-            // Link Validation
-            if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
-                alert("කරුණාකර නිවැරදි YouTube Link එකක් ලබාදෙන්න!");
+            // Get the Video ID
+            const videoId = getVideoId(url);
+
+            // Validation
+            if (!videoId) {
+                alert("Please enter a valid YouTube URL!");
                 return;
             }
 
@@ -202,37 +218,29 @@
             resultArea.innerHTML = '';
             loader.style.display = 'block';
 
-            // Loading Effect (Simulated for smooth UI)
+            // Simulating loading to make it look smooth
             setTimeout(() => {
                 loader.style.display = 'none';
-                
-                const encodedUrl = encodeURIComponent(url);
 
-                // API Iframe URLs for different formats
-                const mp3Url = `https://loader.to/api/button/?url=${encodedUrl}&f=mp3`;
-                const video720Url = `https://loader.to/api/button/?url=${encodedUrl}&f=720`;
-                const video1080Url = `https://loader.to/api/button/?url=${encodedUrl}&f=1080`;
+                // New reliable API widgets (yt-download.org)
+                const mp3Widget = `https://www.yt-download.org/api/widget/mp3/${videoId}`;
+                const videoWidget = `https://www.yt-download.org/api/widget/videos/${videoId}`;
 
                 resultArea.innerHTML = `
                     <h3>🎵 MP3 (Audio) Download</h3>
                     <div class="iframe-container">
-                        <iframe src="${mp3Url}" scrolling="no" style="width:100%; height:100%; border:none;"></iframe>
+                        <iframe src="${mp3Widget}" width="100%" height="100%" scrolling="no" style="border:none;"></iframe>
                     </div>
 
-                    <h3>🎬 MP4 (720p HD) Video</h3>
+                    <h3>🎬 MP4 (Video) Download</h3>
                     <div class="iframe-container">
-                        <iframe src="${video720Url}" scrolling="no" style="width:100%; height:100%; border:none;"></iframe>
-                    </div>
-
-                    <h3>🎬 MP4 (1080p FHD) Video</h3>
-                    <div class="iframe-container">
-                        <iframe src="${video1080Url}" scrolling="no" style="width:100%; height:100%; border:none;"></iframe>
+                        <iframe src="${videoWidget}" width="100%" height="100%" scrolling="no" style="border:none;"></iframe>
                     </div>
                 `;
 
                 resultArea.style.display = 'block';
 
-            }, 1500); // 1.5 seconds loading animation
+            }, 1200); 
         }
     </script>
 

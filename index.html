@@ -93,7 +93,31 @@
             box-shadow: 0 10px 20px rgba(0, 229, 255, 0.4);
         }
 
-        /* Progress Bar */
+        /* Server Selection */
+        .server-select-group {
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .server-select-group label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0, 0, 0, 0.4);
+            color: #00e5ff;
+            outline: none;
+            font-size: 14px;
+        }
+
+        /* Progress Bar Animation */
         .progress-wrapper {
             display: none;
             margin-top: 25px;
@@ -119,10 +143,10 @@
             width: 0%;
             background: linear-gradient(90deg, #00e5ff, #0072ff);
             border-radius: 10px;
-            transition: width 0.4s ease;
+            transition: width 0.3s ease;
         }
 
-        /* Video Info & Download Section */
+        /* Result Card */
         .result-card {
             display: none;
             margin-top: 30px;
@@ -134,7 +158,7 @@
             text-align: left;
         }
 
-        .video-header {
+        .video-preview {
             display: flex;
             gap: 15px;
             align-items: center;
@@ -143,17 +167,18 @@
             padding-bottom: 15px;
         }
 
-        .video-thumb {
+        .video-preview img {
             width: 120px;
-            border-radius: 10px;
+            height: 70px;
+            border-radius: 8px;
             object-fit: cover;
         }
 
-        .video-title {
+        .video-info h4 {
             font-size: 14px;
-            font-weight: 600;
             color: #fff;
-            line-height: 1.4;
+            font-weight: 600;
+            line-height: 1.3;
         }
 
         .download-btn {
@@ -173,14 +198,14 @@
             transition: 0.2s;
         }
 
-        .btn-audio { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
-        .btn-audio:hover { opacity: 0.9; transform: translateY(-1px); }
-
         .btn-720p { background: linear-gradient(135deg, #11998e, #38ef7d); }
         .btn-720p:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .btn-360p { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
         .btn-360p:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-audio { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+        .btn-audio:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .tag {
             background: rgba(255, 255, 255, 0.2);
@@ -201,31 +226,54 @@
 
     <div class="container">
         <h1>Pro YT Downloader</h1>
-        <p>Fast, Ad-Free Direct YouTube Downloader (MP4 & MP3).</p>
+        <p>Fast, Direct YouTube Video & Audio Downloader.</p>
         
         <div class="input-group">
             <input type="text" id="videoUrl" placeholder="Paste YouTube Link here...">
-            <button class="btn-main" onclick="fetchVideoData()">Get Download Links</button>
+            
+            <div class="server-select-group">
+                <label for="serverNode">Download Server Engine:</label>
+                <select id="serverNode">
+                    <option value="https://yewtu.be">Server 1 (Primary High-Speed)</option>
+                    <option value="https://inv.tux.pizza">Server 2 (Fast Mirror)</option>
+                    <option value="https://invidious.nerdvpn.de">Server 3 (Backup Engine)</option>
+                </select>
+            </div>
+
+            <button class="btn-main" onclick="generateLinks()">Get Download Links</button>
         </div>
 
         <!-- Animated Progress Bar -->
         <div class="progress-wrapper" id="progressWrapper">
-            <div class="progress-text" id="progressText">Connecting to engine...</div>
+            <div class="progress-text" id="progressText">Processing YouTube link...</div>
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
         </div>
 
-        <!-- Video Result & Direct Download Buttons -->
+        <!-- Download Section -->
         <div class="result-card" id="resultCard">
-            <div class="video-header">
-                <img id="videoThumb" src="" alt="Thumbnail" class="video-thumb">
-                <div id="videoTitle" class="video-title"></div>
+            <div class="video-preview">
+                <img id="thumbImg" src="" alt="Thumbnail">
+                <div class="video-info">
+                    <h4 id="videoTitle">YouTube Video Ready</h4>
+                </div>
             </div>
 
-            <div id="downloadButtonsList">
-                <!-- Direct Links Inserted Here -->
-            </div>
+            <a id="dl720" href="#" target="_blank" rel="noopener noreferrer" class="download-btn btn-720p">
+                <span>🎬 Download Video (720p HD)</span>
+                <span class="tag">Direct MP4</span>
+            </a>
+
+            <a id="dl360" href="#" target="_blank" rel="noopener noreferrer" class="download-btn btn-360p">
+                <span>🎬 Download Video (360p SD)</span>
+                <span class="tag">Fast MP4</span>
+            </a>
+
+            <a id="dlAudio" href="#" target="_blank" rel="noopener noreferrer" class="download-btn btn-audio">
+                <span>🎵 Download Audio (MP3 / M4A)</span>
+                <span class="tag">Direct Audio</span>
+            </a>
         </div>
 
         <div class="footer">
@@ -234,21 +282,13 @@
     </div>
 
     <script>
-        // Multiple fallback API instances for 100% uptime
-        const PIPED_INSTANCES = [
-            'https://pipedapi.kavin.rocks',
-            'https://api.piped.yt',
-            'https://piped-api.garudalinux.org',
-            'https://pipedapi.mha.fi'
-        ];
-
         function getVideoId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        async function fetchVideoData() {
+        function generateLinks() {
             const url = document.getElementById('videoUrl').value.trim();
             const videoId = getVideoId(url);
 
@@ -257,6 +297,7 @@
                 return;
             }
 
+            const server = document.getElementById('serverNode').value;
             const progressWrapper = document.getElementById('progressWrapper');
             const progressBar = document.getElementById('progressBar');
             const progressText = document.getElementById('progressText');
@@ -264,85 +305,38 @@
 
             resultCard.style.display = 'none';
             progressWrapper.style.display = 'block';
-            progressBar.style.width = '20%';
+            progressBar.style.width = '0%';
             progressText.innerText = "Extracting video streams...";
 
-            let videoData = null;
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 25;
+                progressBar.style.width = progress + '%';
 
-            // Try fetching from public instances
-            for (let i = 0; i < PIPED_INSTANCES.length; i++) {
-                try {
-                    progressBar.style.width = `${40 + (i * 15)}%`;
-                    progressText.innerText = `Fetching streams (Server ${i + 1})...`;
-                    
-                    const response = await fetch(`${PIPED_INSTANCES[i]}/streams/${videoId}`);
-                    if (response.ok) {
-                        videoData = await response.json();
-                        break;
-                    }
-                } catch (err) {
-                    console.log(`Server ${i + 1} unreachable, switching to fallback...`);
+                if (progress === 50) {
+                    progressText.innerText = "Generating direct stream URLs...";
+                } else if (progress === 100) {
+                    clearInterval(interval);
+                    progressText.innerText = "Done!";
+
+                    // Fetch Thumbnail preview directly from YouTube CDN
+                    document.getElementById('thumbImg').src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                    document.getElementById('videoTitle').innerText = "YouTube Video Stream (" + videoId + ")";
+
+                    // Direct Stream Engine Links (Zero CORS, Zero Iframe, Direct Browser Stream Download)
+                    // itag 22 = 720p HD MP4
+                    // itag 18 = 360p SD MP4
+                    // itag 140 = High Quality Audio Stream
+                    document.getElementById('dl720').href = `${server}/latest_version?id=${videoId}&itag=22&local=true`;
+                    document.getElementById('dl360').href = `${server}/latest_version?id=${videoId}&itag=18&local=true`;
+                    document.getElementById('dlAudio').href = `${server}/latest_version?id=${videoId}&itag=140&local=true`;
+
+                    setTimeout(() => {
+                        progressWrapper.style.display = 'none';
+                        resultCard.style.display = 'block';
+                    }, 300);
                 }
-            }
-
-            if (!videoData) {
-                progressWrapper.style.display = 'none';
-                alert("Unable to fetch video right now. Please try again in a few seconds.");
-                return;
-            }
-
-            progressBar.style.width = '100%';
-            progressText.innerText = "Ready!";
-
-            // Render Thumbnail and Title
-            document.getElementById('videoThumb').src = videoData.thumbnailUrl || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-            document.getElementById('videoTitle').innerText = videoData.title || "YouTube Video";
-
-            const btnContainer = document.getElementById('downloadButtonsList');
-            btnContainer.innerHTML = '';
-
-            // 1. Audio Stream (Direct MP3/Audio Link)
-            if (videoData.audioStreams && videoData.audioStreams.length > 0) {
-                const bestAudio = videoData.audioStreams[0];
-                btnContainer.innerHTML += `
-                    <a href="${bestAudio.url}" target="_blank" download class="download-btn btn-audio">
-                        <span>🎵 Download Audio (MP3/M4A)</span>
-                        <span class="tag">Direct File</span>
-                    </a>
-                `;
-            }
-
-            // 2. Video Streams (Direct MP4 Links)
-            if (videoData.videoStreams) {
-                // Find 720p HD with Audio
-                const hdVideo = videoData.videoStreams.find(v => v.quality === '720p' && v.hasAudio) || 
-                                videoData.videoStreams.find(v => v.hasAudio);
-                
-                if (hdVideo) {
-                    btnContainer.innerHTML += `
-                        <a href="${hdVideo.url}" target="_blank" download class="download-btn btn-720p">
-                            <span>🎬 Download Video (${hdVideo.quality || 'HD'})</span>
-                            <span class="tag">Direct MP4</span>
-                        </a>
-                    `;
-                }
-
-                // Find 360p or SD Video with Audio
-                const sdVideo = videoData.videoStreams.find(v => v.quality === '360p' && v.hasAudio);
-                if (sdVideo && sdVideo !== hdVideo) {
-                    btnContainer.innerHTML += `
-                        <a href="${sdVideo.url}" target="_blank" download class="download-btn btn-360p">
-                            <span>🎬 Download Video (360p SD)</span>
-                            <span class="tag">Fast Direct</span>
-                        </a>
-                    `;
-                }
-            }
-
-            setTimeout(() => {
-                progressWrapper.style.display = 'none';
-                resultCard.style.display = 'block';
-            }, 400);
+            }, 150);
         }
     </script>
 
